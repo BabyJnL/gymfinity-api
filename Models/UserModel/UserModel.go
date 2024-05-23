@@ -58,3 +58,15 @@ func GetById(userId *int) (*Entities.User, error) {
 
 	return &user, nil;
 }
+
+func Create(userData *Entities.User) error {
+	query := `INSERT INTO users (firstname, lastname, gender, address, phone_number, email, join_date, status, valid_until, role, photo_path)
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+	
+	_, err := DB.Connection.Exec(query, userData.Firstname, userData.Lastname, userData.Gender, userData.Address, userData.PhoneNumber, userData.Email, userData.JoinDate, userData.Status, userData.ValidUntil, userData.Role, userData.PhotoPath);
+	if err != nil {
+		return err;
+	}
+
+	return nil;
+}
