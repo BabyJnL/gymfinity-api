@@ -70,3 +70,14 @@ func Create(userData *Entities.User) error {
 
 	return nil;
 }
+
+func Update(userId *int, userData *Entities.User) error {
+	query := `UPDATE users SET firstname = ?, lastname = ?, gender = ?, address = ?, phone_number = ?, email = ?, join_date = ?, status = ?, valid_until = ?, role = ?, photo_path = ? WHERE user_id = ?`;
+
+	_, err := DB.Connection.Exec(query, userData.Firstname, userData.Lastname, userData.Gender, userData.Address, userData.PhoneNumber, userData.Email, userData.JoinDate, userData.Status, userData.ValidUntil, userData.Role, userData.PhotoPath, userId);
+	if (err != nil) {
+		return err;
+	}
+
+	return nil;
+}

@@ -23,6 +23,7 @@ func SetupRoutes() {
 		api.GET("/users", UserController.Index)
 		api.GET("/users/:id", UserController.Show)
 		api.POST("/users", UserController.Create)
+		api.PUT("/users/:id", UserController.Update)
 	}
 
 	router.Run("localhost:8080")

@@ -72,3 +72,29 @@ func Create(c *gin.Context) {
 
 	Library.ApiResponseSuccess(c, http.StatusCreated, "A new user has been created", userData);
 }
+
+func Update(c *gin.Context) {
+	userId := Library.ParseInt(c.Param("id"));
+	var updatedData Entities.User;
+	
+	if err := c.BindJSON(&updatedData); err != nil {
+		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		return;
+	}
+
+	validate := validator.New();
+	Validator.RegisterCustomValidators(validate);
+
+	if err := validate.Struct(updatedData); err != nil {
+		errors := err.(validator.ValidationErrors);
+		Library.ApiResponseError(c, http.StatusBadRequest, fmt.Sprintf("%v", errors));
+		return;
+	}
+
+	if err := UserModel.Update(&userId, &updatedData); err != nil {
+		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		return;
+	}
+
+	Library.ApiResponseSuccess(c, http.StatusOK, fmt.Sprintf("An user with id %d has been updated", userId), updatedData);
+}
