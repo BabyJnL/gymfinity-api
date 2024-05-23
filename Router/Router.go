@@ -21,6 +21,7 @@ func SetupRoutes() {
 	{
 		// Users Routes
 		api.GET("/users", UserController.Index)
+		api.GET("/users/:id", UserController.Show)
 	}
 
 	router.Run("localhost:8080")
