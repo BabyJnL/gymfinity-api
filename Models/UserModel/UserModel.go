@@ -6,6 +6,13 @@ import (
 	"gymfinity-backend-api/Entities"
 )
 
+func isExists(userId *int) bool {
+	userExists := false;
+	DB.Connection.QueryRow("SELECT EXISTS (SELECT * FROM users WHERE user_id = ?)", userId).Scan(&userExists);
+
+	return userExists;
+}
+ 
 func GetAll(role *string) ([]Entities.User, error) {
 	var rows *sql.Rows;
 	var err error;
@@ -72,10 +79,15 @@ func Create(userData *Entities.User) error {
 }
 
 func Update(userId *int, userData *Entities.User) error {
+	targetUserExists := isExists(userId);
+	if !targetUserExists {
+		return sql.ErrNoRows
+	}
+
 	query := `UPDATE users SET firstname = ?, lastname = ?, gender = ?, address = ?, phone_number = ?, email = ?, join_date = ?, status = ?, valid_until = ?, role = ?, photo_path = ? WHERE user_id = ?`;
 
 	_, err := DB.Connection.Exec(query, userData.Firstname, userData.Lastname, userData.Gender, userData.Address, userData.PhoneNumber, userData.Email, userData.JoinDate, userData.Status, userData.ValidUntil, userData.Role, userData.PhotoPath, userId);
-	if (err != nil) {
+	if err != nil {
 		return err;
 	}
 
