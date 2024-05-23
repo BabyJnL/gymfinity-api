@@ -92,7 +92,11 @@ func Update(c *gin.Context) {
 	}
 
 	if err := UserModel.Update(&userId, &updatedData); err != nil {
-		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		if err == sql.ErrNoRows {
+			Library.ApiResponseSuccess(c, http.StatusOK, fmt.Sprintf("An user with id %d is not founded", userId), nil);
+		} else {
+			Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		}
 		return;
 	}
 
