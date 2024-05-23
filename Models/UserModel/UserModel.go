@@ -38,3 +38,19 @@ func GetAll(role *string) ([]Entities.User, error) {
 
 	return users, nil;
 }
+
+func GetById(userId *int) (*Entities.User, error) {
+	row := DB.Connection.QueryRow("SELECT * FROM users WHERE user_id = ?", userId);
+
+	var user Entities.User
+	err := row.Scan(&user.UserID, &user.Firstname, &user.Lastname, &user.Gender, &user.Address, &user.PhoneNumber, &user.Email, &user.JoinDate, &user.Status, &user.ValidUntil, &user.Role, &user.PhotoPath);
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, err;
+		}
+
+		return nil, err
+	}
+
+	return &user, nil;
+}
