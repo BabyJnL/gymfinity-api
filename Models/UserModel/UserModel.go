@@ -81,3 +81,23 @@ func Update(userId *int, userData *Entities.User) error {
 
 	return nil;
 }
+
+func Delete(userId *int) error {
+	query := `DELETE FROM users WHERE user_id = ?`;
+
+	result, err := DB.Connection.Exec(query, userId);
+	if err != nil {
+		return err;
+	}
+
+	rowsAffected, err := result.RowsAffected();
+	if err != nil {
+		return err;
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows;
+	}
+
+	return nil;
+}

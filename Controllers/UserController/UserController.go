@@ -98,3 +98,19 @@ func Update(c *gin.Context) {
 
 	Library.ApiResponseSuccess(c, http.StatusOK, fmt.Sprintf("An user with id %d has been updated", userId), updatedData);
 }
+
+func Delete(c *gin.Context) {
+	userId := Library.ParseInt(c.Param("id"));
+
+	err := UserModel.Delete(&userId);
+	if err != nil {
+		if err == sql.ErrNoRows {
+			Library.ApiResponseSuccess(c, http.StatusOK, fmt.Sprintf("An user with id %d is not founded", userId), nil);
+		} else {
+			Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		}
+		return;
+	}
+
+	Library.ApiResponseSuccess(c, http.StatusOK, fmt.Sprintf("An user with id %d has been removed", userId), nil);
+}
