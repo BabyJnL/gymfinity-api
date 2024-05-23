@@ -17,7 +17,11 @@ func Index(c *gin.Context) {
 	users, err := UserModel.GetAll(&roleParams);
 
 	if err != nil {
-		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		if err == sql.ErrNoRows {
+			Library.ApiResponseSuccess(c, http.StatusOK, fmt.Sprintf("No users found with role %v", roleParams), nil);
+		} else {
+			Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		}
 		return;
 	}
 

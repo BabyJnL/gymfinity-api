@@ -22,7 +22,7 @@ func GetAll(role *string) ([]Entities.User, error) {
 
 	defer rows.Close();
 
-	var users []Entities.User;
+	users := []Entities.User{};
 
 	for rows.Next() {
 		var user Entities.User;
@@ -32,8 +32,12 @@ func GetAll(role *string) ([]Entities.User, error) {
 		users = append(users, user);
 	}
 
+	if len(users) == 0 {
+		return nil, sql.ErrNoRows;
+	}
+
 	if err = rows.Err(); err != nil {
-        return nil, err
+        return nil, err;
     }
 
 	return users, nil;
