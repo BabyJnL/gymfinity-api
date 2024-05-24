@@ -6,3 +6,8 @@ type Facility struct {
 	Description		string	`json:"description" validate:"required"`
 	Photo			string	`json:"photo" validate:"required"`
 }
+
+type FacilityStatus struct {
+	StatusID		int		`json:"statusId"`
+	Name			string	`json:"name"`
+}
