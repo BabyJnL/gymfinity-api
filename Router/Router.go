@@ -3,6 +3,7 @@ package Router
 import (
 	"gymfinity-backend-api/Controllers/ClassController"
 	"gymfinity-backend-api/Controllers/ClassScheduleController"
+	"gymfinity-backend-api/Controllers/FacilityController"
 	"gymfinity-backend-api/Controllers/UserController"
 
 	"github.com/gin-gonic/gin"
@@ -41,6 +42,13 @@ func SetupRoutes() {
 		api.POST("/class-schedules", ClassScheduleController.Create)
 		api.PUT("/class-schedules/:id", ClassScheduleController.Update)
 		api.DELETE("/class-schedules/:id", ClassScheduleController.Delete)
+
+		// Facility Routes
+		api.GET("/facilities", FacilityController.Index)
+		api.GET("/facilities/:id", FacilityController.Show)
+		api.POST("/facilities", FacilityController.Create)
+		api.PUT("/facilities/:id", FacilityController.Update)
+		api.DELETE("/facilities/:id", FacilityController.Delete)
 	}
 
 	router.Run("localhost:8080")
