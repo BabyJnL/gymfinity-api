@@ -5,6 +5,7 @@ import (
 	"gymfinity-backend-api/Controllers/ClassScheduleController"
 	"gymfinity-backend-api/Controllers/FacilityController"
 	"gymfinity-backend-api/Controllers/FacilityStatusController"
+	"gymfinity-backend-api/Controllers/PaymentController"
 	"gymfinity-backend-api/Controllers/ReservationController"
 	"gymfinity-backend-api/Controllers/UserController"
 
@@ -60,6 +61,11 @@ func SetupRoutes() {
 		api.GET("/reservations/:id", ReservationController.Show)
 		api.POST("/reservations", ReservationController.Create)
 		api.PUT("/reservations/:id", ReservationController.Update)
+
+		// Payment Routes
+		api.GET("/payments", PaymentController.Index)
+		api.GET("/payments/:id", PaymentController.Show)
+		api.POST("/payments", PaymentController.Create)
 	}
 
 	router.Run("localhost:8080")
