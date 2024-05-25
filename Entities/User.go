@@ -14,3 +14,13 @@ type User struct {
 	Role		string	`json:"role" validate:"required,validateRole"`
 	PhotoPath	string	`json:"photoPath"`
 }
+
+type UserStatus struct {
+	StatusID	int		`json:"statusId"`
+	Name		string	`json:"name"`
+}
+
+type UserRole	struct {
+	RoleID		int		`json:"roleId"`
+	Name		string	`json:"name"`
+}

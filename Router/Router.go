@@ -8,6 +8,8 @@ import (
 	"gymfinity-backend-api/Controllers/PaymentController"
 	"gymfinity-backend-api/Controllers/ReservationController"
 	"gymfinity-backend-api/Controllers/UserController"
+	"gymfinity-backend-api/Controllers/UserRoleController"
+	"gymfinity-backend-api/Controllers/UserStatusController"
 
 	"github.com/gin-gonic/gin"
 )
@@ -31,6 +33,12 @@ func SetupRoutes() {
 		api.POST("/users", UserController.Create)
 		api.PUT("/users/:id", UserController.Update)
 		api.DELETE("/users/:id", UserController.Delete)
+
+		// User Status Routes
+		api.GET("/user-statuses", UserStatusController.Index)
+
+		// User Role Routes
+		api.GET("/user-roles", UserRoleController.Index)
 
 		// Class Routes
 		api.GET("/classes", ClassController.Index)
