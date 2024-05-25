@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 
-	//"fmt"
 	"net/http"
 
 	"gymfinity-backend-api/Entities"
@@ -46,7 +45,7 @@ func Show(c *gin.Context) {
 }
 
 func Create(c *gin.Context) {
-	var classScheduleData Entities.ClassSchedule;
+	var classScheduleData Entities.CreateClassSchedule;
 
 	if err := c.BindJSON(&classScheduleData); err != nil {
 		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
@@ -70,7 +69,7 @@ func Create(c *gin.Context) {
 
 func Update(c *gin.Context) {
 	scheduleId := Library.ParseInt(c.Param("id"));
-	var updatedData Entities.ClassSchedule;
+	var updatedData Entities.CreateClassSchedule;
 
 	if err := c.BindJSON(&updatedData); err != nil {
 		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
