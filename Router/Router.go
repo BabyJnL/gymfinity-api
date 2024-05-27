@@ -1,6 +1,10 @@
 package Router
 
 import (
+	"time"
+
+	"gymfinity-backend-api/Middleware"
+	"gymfinity-backend-api/Controllers/AuthController"
 	"gymfinity-backend-api/Controllers/ClassController"
 	"gymfinity-backend-api/Controllers/ClassScheduleController"
 	"gymfinity-backend-api/Controllers/FacilityController"
@@ -12,21 +16,33 @@ import (
 	"gymfinity-backend-api/Controllers/UserRoleController"
 	"gymfinity-backend-api/Controllers/UserStatusController"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
-
-var trustedProxies = []string{
-	"127.0.0.1",
-}
 
 func SetupRoutes() {
 	router := gin.Default();
 	
 	// Middlewares
-	router.SetTrustedProxies(trustedProxies)
+	// router.SetTrustedProxies(trustedProxies)
+    config := cors.Config{
+        AllowAllOrigins:  true,
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+        MaxAge:           12 * time.Hour,
+    }
 
+	router.Static("/uploads", "./uploads")
+	router.Use(cors.New(config))
+
+	// Auth Route
+	router.POST("/auth", AuthController.Verify)
+	
 	// API Routes Group
 	api := router.Group("/api")
+	api.Use(Middleware.AuthMiddleware())
 	{
 		// User Routes
 		api.GET("/users", UserController.Index)

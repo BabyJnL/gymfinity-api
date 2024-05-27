@@ -16,7 +16,11 @@ func isExists(reservationId *int) bool {
 }
 
 func GetAll() ([]Entities.Reservation, error) {
-	rows, err := DB.Connection.Query("SELECT r.reservation_id, r.member_id, r.class_id, rs.status_name, r.date FROM reservations r JOIN reservation_statuses rs ON r.status_id = rs.status_id");
+	rows, err := DB.Connection.Query(`SELECT r.reservation_id, CONCAT(m.firstname, ' ', m.lastname) AS member_name, c.name AS class_name, rs.status_name, r.date 
+	FROM reservations r 
+	JOIN users m ON r.member_id = m.user_id
+	JOIN classes c ON r.class_id = c.class_id
+	JOIN reservation_statuses rs ON r.status_id = rs.status_id`);
 	if err != nil {
 		return nil, err;
 	}
@@ -25,7 +29,7 @@ func GetAll() ([]Entities.Reservation, error) {
 	var reservations []Entities.Reservation;
 	for rows.Next() {
 		var reservation Entities.Reservation;
-		if err := rows.Scan(&reservation.ReservationID, &reservation.MemberId, &reservation.ClassId, &reservation.Status, &reservation.Date); err != nil {
+		if err := rows.Scan(&reservation.ReservationID, &reservation.MemberName, &reservation.ClassName, &reservation.Status, &reservation.Date); err != nil {
 			return nil, err;
 		}
 		fmt.Println(reservation);
@@ -39,7 +43,7 @@ func GetById(reservationId *int) (*Entities.Reservation, error) {
 	row := DB.Connection.QueryRow("SELECT r.reservation_id, r.member_id, r.class_id, rs.status_name, r.date FROM reservations r JOIN reservation_statuses rs ON r.status_id = rs.status_id WHERE r.reservation_id = ?", reservationId);
 
 	var reservation Entities.Reservation;
-	if err := row.Scan(&reservation.ReservationID, &reservation.MemberId, &reservation.ClassId, &reservation.Status, &reservation.Date); err != nil {
+	if err := row.Scan(&reservation.ReservationID, &reservation.MemberName, &reservation.ClassName, &reservation.Status, &reservation.Date); err != nil {
 		return nil, err;
 	}
 

@@ -8,10 +8,8 @@ import (
 	"gymfinity-backend-api/Entities"
 	"gymfinity-backend-api/Library"
 	"gymfinity-backend-api/Models/UserModel"
-	"gymfinity-backend-api/Validator"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 func Index(c *gin.Context) {
@@ -51,19 +49,50 @@ func Show(c *gin.Context) {
 func Create(c *gin.Context) {
 	var userData Entities.User;
 
-	if err := c.BindJSON(&userData); err != nil {
-		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
-		return;
+	// Menangkap teks dari formulir
+	firstname := c.PostForm("firstname")
+	lastname := c.PostForm("lastname")
+	gender := c.PostForm("gender");
+	address := c.PostForm("address")
+	phoneNumber := c.PostForm("phoneNumber");
+	email := c.PostForm("email")
+	status := c.PostForm("status")
+	validUntil := c.PostForm("validUntil")
+	role := c.PostForm("role")
+
+
+	// Menangkap file dari formulir
+	file, err := c.FormFile("photoPath")
+	if err != nil {
+		Library.ApiResponseError(c, http.StatusBadRequest, err.Error());
+		return
 	}
 
-	validate := validator.New();
-	Validator.RegisterCustomValidators(validate);
-	
-	if err := validate.Struct(userData); err != nil {
-		errors := err.(validator.ValidationErrors);
-		Library.ApiResponseError(c, http.StatusBadRequest, fmt.Sprintf("%v", errors));
-		return;
-	}
+	filename := Library.GenerateUniqueFileName(file.Filename)
+
+	err = c.SaveUploadedFile(file, "uploads/"+filename)
+	if err != nil {
+		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		return
+	}	
+
+	userData.Firstname = firstname;
+	userData.Lastname = lastname;
+	userData.Gender = gender;
+	userData.Address = address;
+	userData.PhoneNumber = phoneNumber;
+	userData.Email = email;
+	userData.Status = status;
+	userData.ValidUntil = validUntil;
+	userData.Role = role;
+	userData.PhotoPath = filename
+
+	// validate := validator.New();
+	// if err := validate.Struct(userData); err != nil {
+	// 	errors := err.(validator.ValidationErrors);
+	// 	Library.ApiResponseError(c, http.StatusBadRequest, fmt.Sprintf("%v", errors));
+	// 	return;
+	// }
 
 	if err := UserModel.Create(&userData); err != nil {
 		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
@@ -79,15 +108,6 @@ func Update(c *gin.Context) {
 	
 	if err := c.BindJSON(&updatedData); err != nil {
 		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
-		return;
-	}
-
-	validate := validator.New();
-	Validator.RegisterCustomValidators(validate);
-
-	if err := validate.Struct(updatedData); err != nil {
-		errors := err.(validator.ValidationErrors);
-		Library.ApiResponseError(c, http.StatusBadRequest, fmt.Sprintf("%v", errors));
 		return;
 	}
 

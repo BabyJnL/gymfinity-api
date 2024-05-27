@@ -2,8 +2,8 @@ package Entities
 
 type Reservation struct {
 	ReservationID		int		`json:"reservationId"`
-	MemberId			int		`json:"memberId"`
-	ClassId				int		`json:"classId"`
+	MemberName			string	`json:"memberId"`
+	ClassName			string	`json:"classId"`
 	Status				string	`json:"status"`
 	Date				string	`json:"date"`
 }

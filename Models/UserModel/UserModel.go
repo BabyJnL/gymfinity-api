@@ -1,16 +1,24 @@
 package UserModel
 
 import (
+	"time"
 	"database/sql"
 	DB "gymfinity-backend-api/Connection"
 	"gymfinity-backend-api/Entities"
 )
 
-func isExists(userId *int) bool {
+func IsExists(userId *int) bool {
 	userExists := false;
 	DB.Connection.QueryRow("SELECT EXISTS (SELECT * FROM users WHERE user_id = ?)", userId).Scan(&userExists);
 
 	return userExists;
+}
+
+func Verify(userData *Entities.UserVerify) *Entities.User {
+	var user Entities.User;
+	DB.Connection.QueryRow("SELECT * FROM users WHERE email = ? AND pin = ?", userData.Email, userData.Pin).Scan(&user.UserID, &user.Firstname, &user.Lastname, &user.Gender, &user.Address, &user.PhoneNumber, &user.Email, &user.Pin, &user.JoinDate, &user.Status, &user.ValidUntil, &user.Role, &user.PhotoPath);
+
+	return &user;
 }
  
 func GetAll(role *string) ([]Entities.User, error) {
@@ -33,7 +41,7 @@ func GetAll(role *string) ([]Entities.User, error) {
 
 	for rows.Next() {
 		var user Entities.User;
-		if err := rows.Scan(&user.UserID, &user.Firstname, &user.Lastname, &user.Gender, &user.Address, &user.PhoneNumber, &user.Email, &user.JoinDate, &user.Status, &user.ValidUntil, &user.Role, &user.PhotoPath); err != nil {
+		if err := rows.Scan(&user.UserID, &user.Firstname, &user.Lastname, &user.Gender, &user.Address, &user.PhoneNumber, &user.Email, &user.Pin, &user.JoinDate, &user.Status, &user.ValidUntil, &user.Role, &user.PhotoPath); err != nil {
 			return nil, err;
 		}
 		users = append(users, user);
@@ -54,7 +62,7 @@ func GetById(userId *int) (*Entities.User, error) {
 	row := DB.Connection.QueryRow("SELECT * FROM users WHERE user_id = ?", userId);
 
 	var user Entities.User
-	err := row.Scan(&user.UserID, &user.Firstname, &user.Lastname, &user.Gender, &user.Address, &user.PhoneNumber, &user.Email, &user.JoinDate, &user.Status, &user.ValidUntil, &user.Role, &user.PhotoPath);
+	err := row.Scan(&user.UserID, &user.Firstname, &user.Lastname, &user.Gender, &user.Address, &user.PhoneNumber, &user.Email, &user.Pin, &user.JoinDate, &user.Status, &user.ValidUntil, &user.Role, &user.PhotoPath);
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, err;
@@ -67,10 +75,11 @@ func GetById(userId *int) (*Entities.User, error) {
 }
 
 func Create(userData *Entities.User) error {
-	query := `INSERT INTO users (firstname, lastname, gender, address, phone_number, email, join_date, status, valid_until, role, photo_path)
-			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+	currentTime := time.Now()
+	query := `INSERT INTO users (firstname, lastname, gender, address, phone_number, email, pin, join_date, status, valid_until, role, photo_path)
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 	
-	_, err := DB.Connection.Exec(query, userData.Firstname, userData.Lastname, userData.Gender, userData.Address, userData.PhoneNumber, userData.Email, userData.JoinDate, userData.Status, userData.ValidUntil, userData.Role, userData.PhotoPath);
+	_, err := DB.Connection.Exec(query, userData.Firstname, userData.Lastname, userData.Gender, userData.Address, userData.PhoneNumber, userData.Email, userData.Pin, currentTime, userData.Status, userData.ValidUntil, userData.Role, userData.PhotoPath);
 	if err != nil {
 		return err;
 	}
@@ -79,14 +88,14 @@ func Create(userData *Entities.User) error {
 }
 
 func Update(userId *int, userData *Entities.User) error {
-	targetUserExists := isExists(userId);
+	targetUserExists := IsExists(userId);
 	if !targetUserExists {
 		return sql.ErrNoRows
 	}
 
-	query := `UPDATE users SET firstname = ?, lastname = ?, gender = ?, address = ?, phone_number = ?, email = ?, join_date = ?, status = ?, valid_until = ?, role = ?, photo_path = ? WHERE user_id = ?`;
+	query := `UPDATE users SET firstname = ?, lastname = ?, gender = ?, address = ?, phone_number = ?, email = ?, pin = ?, status = ?, role = ? WHERE user_id = ?`;
 
-	_, err := DB.Connection.Exec(query, userData.Firstname, userData.Lastname, userData.Gender, userData.Address, userData.PhoneNumber, userData.Email, userData.JoinDate, userData.Status, userData.ValidUntil, userData.Role, userData.PhotoPath, userId);
+	_, err := DB.Connection.Exec(query, userData.Firstname, userData.Lastname, userData.Gender, userData.Address, userData.PhoneNumber, userData.Email, userData.Pin, userData.Status, userData.Role, userId);
 	if err != nil {
 		return err;
 	}
@@ -95,7 +104,7 @@ func Update(userId *int, userData *Entities.User) error {
 }
 
 func Delete(userId *int) error {
-	targetUserExists := isExists(userId);
+	targetUserExists := IsExists(userId);
 	if !targetUserExists {
 		return sql.ErrNoRows
 	}

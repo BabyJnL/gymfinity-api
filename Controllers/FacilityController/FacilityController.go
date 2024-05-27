@@ -47,17 +47,28 @@ func Show(c *gin.Context) {
 func Create(c *gin.Context) {
 	var facilityData Entities.Facility;
 
-	if err := c.BindJSON(&facilityData); err != nil {
-		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
-		return;
+	// Menangkap teks dari formulir
+	name := c.PostForm("name")
+	description := c.PostForm("description")
+
+	// Menangkap file dari formulir
+	file, err := c.FormFile("photoPath")
+	if err != nil {
+		Library.ApiResponseError(c, http.StatusBadRequest, err.Error());
+		return
 	}
 
-	validate := validator.New();
-	if err := validate.Struct(facilityData); err != nil {
-		errors := err.(validator.ValidationErrors);
-		Library.ApiResponseError(c, http.StatusBadRequest, fmt.Sprintf("%v", errors));
-		return;
-	}
+	filename := Library.GenerateUniqueFileName(file.Filename)
+
+	err = c.SaveUploadedFile(file, "uploads/"+filename)
+	if err != nil {
+		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
+		return
+	}	
+
+	facilityData.Name = name;
+	facilityData.Description = description;
+	facilityData.Photo = filename;
 
 	if err := FacilityModel.Create(&facilityData); err != nil {
 		Library.ApiResponseError(c, http.StatusInternalServerError, err.Error());
@@ -97,6 +108,8 @@ func Update(c *gin.Context) {
 
 func Delete(c *gin.Context) {
 	facilityId := Library.ParseInt(c.Param("id"));
+
+	fmt.Println(facilityId);
 
 	err := FacilityModel.Delete(&facilityId);
 	if err != nil {

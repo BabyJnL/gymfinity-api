@@ -1,6 +1,8 @@
 package FacilityModel 
 
 import (
+	"os"
+	"path/filepath"
 	"database/sql"
 
 	DB "gymfinity-backend-api/Connection"
@@ -69,9 +71,9 @@ func Update(facilityId *int, updatedData *Entities.Facility) error {
 		return sql.ErrNoRows
 	}
 
-	query := "UPDATE facilities SET name = ?, description = ?, photo = ? WHERE facility_id = ?";
+	query := "UPDATE facilities SET name = ?, description = ? WHERE facility_id = ?";
 
-	_, err := DB.Connection.Exec(query, updatedData.Name, updatedData.Description, updatedData.Photo, facilityId);
+	_, err := DB.Connection.Exec(query, updatedData.Name, updatedData.Description, facilityId);
 	if err != nil {
 		return err;
 	}
@@ -85,10 +87,21 @@ func Delete(facilityId *int) error {
 		return sql.ErrNoRows
 	}
 
+	facility, err := GetById(facilityId);
+	if err != nil {
+		return err;
+	}
+
+	filePath := filepath.Join("uploads", facility.Photo);
+	remErr := os.Remove(filePath);
+	if remErr != nil {
+		return err;
+	}
+
 	query := "DELETE FROM facilities WHERE facility_id = ?";
 
-	_, err := DB.Connection.Exec(query, facilityId);
-	if err != nil {
+	_, execErr := DB.Connection.Exec(query, facilityId);
+	if execErr != nil {
 		return err;
 	}
 
